@@ -11,8 +11,6 @@ process read_training_data{
   maxRetries 10
   memory { 16.GB * task.attempt }
 
-  maxForks 1
-
   input: 
     file(training_10X_data) from TRAINING_DATA
     file(training_metadata) from  TRAINING_METADATA
@@ -37,8 +35,6 @@ process process_training_sce{
   maxRetries 5
   memory { 16.GB * task.attempt }
 
-  maxForks 1
-
   input:
     file(training_sce) from TRAINING_SCE
 
@@ -61,8 +57,6 @@ process eigen_decompose{
   errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
   maxRetries 5
   memory { 16.GB * task.attempt }
-
-  maxForks 1
 
   input:
     file(training_matrix) from TRAINING_MATRIX
@@ -87,8 +81,6 @@ process get_features{
   maxRetries 5
   memory { 16.GB * task.attempt }
 
-  maxForks 1
-
   input:
     file(scpred_training_object) from TRAINING_OBJECT
 
@@ -111,8 +103,6 @@ process train_model{
   errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
   maxRetries 5
   memory { 16.GB * task.attempt }
-
-  maxForks 1
 
   input:
     file(scpred_training_features) from TRAINING_FEATURES
