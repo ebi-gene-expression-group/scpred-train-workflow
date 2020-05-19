@@ -31,8 +31,8 @@ process read_training_data{
 process process_training_sce{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
-  maxRetries 5
+  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
+  maxRetries 10
   memory { 16.GB * task.attempt }
 
   input:
@@ -54,8 +54,8 @@ process process_training_sce{
 process eigen_decompose{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
-  maxRetries 5
+  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
+  maxRetries 10
   memory { 16.GB * task.attempt }
 
   input:
@@ -77,8 +77,8 @@ process eigen_decompose{
 process get_features{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
-  maxRetries 5
+  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
+  maxRetries 10
   memory { 16.GB * task.attempt }
 
   input:
@@ -100,8 +100,8 @@ process train_model{
   publishDir "${params.results_dir}", mode: 'copy'
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.attempt < 5  ? 'retry' : 'finish' }   
-  maxRetries 5
+  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
+  maxRetries 10
   memory { 16.GB * task.attempt }
 
   input:
