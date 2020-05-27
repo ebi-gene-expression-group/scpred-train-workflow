@@ -108,14 +108,14 @@ process train_model{
     file(scpred_training_features) from TRAINING_FEATURES
 
   output:
-    file("scpred_trained_model.rds") into TRAINED_MODEL
+    file("scpred_classifier.rds") into TRAINED_MODEL
 
   """
   scpred_train_model.R\
           --input-object ${scpred_training_features}\
           --train-id ${params.training_dataset_id}\
           --model ${params.model}\
-          --output-path scpred_trained_model.rds\
+          --output-path scpred_classifier.rds\
           --train-probs-plot ${params.train_probs_plot_path}
   """
 }
