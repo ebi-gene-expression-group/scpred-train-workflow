@@ -115,7 +115,7 @@ process train_model{
           --input-object ${scpred_training_features}\
           --train-id ${params.training_dataset_id}\
           --model ${params.model}\
-          --output-path ${params.trained_model}\
+          --output-path scpred_trained_model.rds\
           --train-probs-plot ${params.train_probs_plot_path}
   """
 }
