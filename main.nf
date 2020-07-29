@@ -7,9 +7,8 @@ TRAINING_METADATA = Channel.fromPath(params.metadata_file)
 process read_training_data{
   conda "${baseDir}/envs/dropletutils.yaml"
 
-  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-  maxRetries 10
   memory { 16.GB * task.attempt }
+  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
 
   input: 
     file(training_10X_data) from TRAINING_DATA
@@ -31,9 +30,8 @@ process read_training_data{
 process process_training_sce{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-  maxRetries 10
   memory { 16.GB * task.attempt }
+  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
 
   input:
     file(training_sce) from TRAINING_SCE
@@ -54,9 +52,8 @@ process process_training_sce{
 process eigen_decompose{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-  maxRetries 10
   memory { 16.GB * task.attempt }
+  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
 
   input:
     file(training_matrix) from TRAINING_MATRIX
@@ -77,9 +74,8 @@ process eigen_decompose{
 process get_features{
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-  maxRetries 10
   memory { 16.GB * task.attempt }
+  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
 
   input:
     file(scpred_training_object) from TRAINING_OBJECT
@@ -100,9 +96,8 @@ process train_model{
   publishDir "${params.results_dir}", mode: 'copy'
   conda "${baseDir}/envs/scpred.yaml"
 
-  errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-  maxRetries 10
   memory { 16.GB * task.attempt }
+  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
 
   input:
     file(scpred_training_features) from TRAINING_FEATURES
