@@ -7,8 +7,8 @@ TRAINING_METADATA = Channel.fromPath(params.metadata_file)
 process read_training_data{
   conda "${baseDir}/envs/dropletutils.yaml"
 
-  memory { 16.GB * task.attempt }
-  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
+  memory { 32.GB * task.attempt }
+  errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
   input: 
     file(training_10X_data) from TRAINING_DATA
@@ -30,8 +30,8 @@ process read_training_data{
 process process_training_sce{
   conda "${baseDir}/envs/scpred.yaml"
 
-  memory { 16.GB * task.attempt }
-  errorStrategy { task.attempt<=10 ? 'retry' : 'ignore' }
+  memory { 64.GB * task.attempt }
+  errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
   input:
     file(training_sce) from TRAINING_SCE
