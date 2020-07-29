@@ -1,8 +1,4 @@
 name: dropletutils
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
 dependencies:
   - openblas
   - dropletutils-scripts=0.0.4
