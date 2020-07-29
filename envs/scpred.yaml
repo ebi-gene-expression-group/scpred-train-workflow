@@ -1,8 +1,4 @@
 name: scpred-cli
-channels:
-  - bioconda
-  - conda-forge 
-  - defaults 
 dependencies:
   - scpred-cli=0.0.7
   - bioconductor-singlecellexperiment=1.6.0
