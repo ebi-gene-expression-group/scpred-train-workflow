@@ -1,4 +1,5 @@
 name: label-analysis
 dependencies:
   - cell-types-analysis 
+  - dropletutils-scripts
 
