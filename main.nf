@@ -8,7 +8,7 @@ TRAINING_METADATA = Channel.fromPath(params.metadata_file)
 process downsample_cells {
     conda "${baseDir}/envs/label_analysis.yaml"
 
-    memory { 10.GB * task.attempt }
+    memory { 32.GB * task.attempt }
     maxRetries 5
     errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
