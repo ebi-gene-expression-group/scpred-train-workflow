@@ -4,6 +4,43 @@
 TRAINING_DATA = Channel.fromPath(params.training_10x_dir)
 TRAINING_METADATA = Channel.fromPath(params.metadata_file)
 
+// if necessary, down-sample cells to avoid memory issues 
+process downsample_cells {
+    conda "${baseDir}/envs/label_analysis.yaml"
+
+    memory { 10.GB * task.attempt }
+    maxRetries 5
+    errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
+
+    input:
+        file(expression_data) from TRAINING_DATA
+        file(training_metadata) from TRAINING_METADATA
+        
+    output:
+        file("expr_data_downsampled") into TRAINING_DATA_DOWNSAMPLED
+        file("metadata_filtered.tsv") into TRAINING_METADATA_DOWNSAMPLED
+
+    """
+    set +e
+    downsample_cells.R\
+        --expression-data ${expression_data}\
+        --metadata ${training_metadata}\
+        --exclusions ${params.exclusions}\
+        --cell-id-field ${params.cell_id_col}\
+        --cell-type-field ${cluster_col}\
+        --output-dir expr_data_downsampled\
+        --metadata-upd metadata_filtered.tsv
+
+    if [ $? -eq  2 ];
+    then
+        cp -P ${expression_data} expr_data_downsampled
+        cp -P ${training_metadata} metadata_filtered.tsv
+        exit 0
+    fi
+    """
+}
+
+// parse data into SCE object 
 process read_training_data{
   conda "${baseDir}/envs/dropletutils.yaml"
 
@@ -12,8 +49,8 @@ process read_training_data{
   errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
   input: 
-    file(training_10X_data) from TRAINING_DATA
-    file(training_metadata) from  TRAINING_METADATA
+    file(training_10X_data) from TRAINING_DATA_DOWNSAMPLED
+    file(training_metadata) from  TRAINING_METADATA_DOWNSAMPLED
 
   output:
     file("training_sce.rds") into TRAINING_SCE

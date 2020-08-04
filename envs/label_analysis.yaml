@@ -1,0 +1,4 @@
+name: label-analysis
+dependencies:
+  - cell-types-analysis 
+
