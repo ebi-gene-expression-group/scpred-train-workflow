@@ -26,12 +26,12 @@ process downsample_cells {
         --expression-data ${expression_data}\
         --metadata ${training_metadata}\
         --exclusions ${params.exclusions}\
-        --cell-id-field ${params.cell_id_col}\
-        --cell-type-field ${cluster_col}\
+        --cell-id-field ${params.cell_id_col_name}\
+        --cell-type-field ${params.cell_types_col_name}\
         --output-dir expr_data_downsampled\
         --metadata-upd metadata_filtered.tsv
 
-    if [ $? -eq  2 ];
+    if [ \$? -eq  2 ];
     then
         cp -P ${expression_data} expr_data_downsampled
         cp -P ${training_metadata} metadata_filtered.tsv
