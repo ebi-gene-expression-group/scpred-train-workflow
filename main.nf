@@ -40,9 +40,9 @@ process downsample_cells {
     """
 }
 
-// parse data into SCE object 
+// parse data into Seurat object 
 process read_training_data{
-  conda "${baseDir}/envs/dropletutils.yaml"
+  conda "${baseDir}/envs/seurat.yaml"
 
   memory { 32.GB * task.attempt }
   maxRetries 5
@@ -53,61 +53,14 @@ process read_training_data{
     file(training_metadata) from  TRAINING_METADATA_DOWNSAMPLED
 
   output:
-    file("training_sce.rds") into TRAINING_SCE
+    file("training_seurat.rds") into TRAINING_SEURAT
 
   """
-  dropletutils-read-10x-counts.R\
-            --samples ${training_10X_data}\
-            --col-names ${params.col_names}\
-            --metadata-files ${training_metadata}\
-            --cell-id-column ${params.cell_id_col_name}\
-            --output-object-file training_sce.rds
-  """
-}
-
-process process_training_sce{
-  conda "${baseDir}/envs/scpred.yaml"
-
-  memory { 32.GB * task.attempt }
-  maxRetries 5
-  errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
-
-  input:
-    file(training_sce) from TRAINING_SCE
-
-  output:
-    file("training_matrix.rds") into TRAINING_MATRIX
-    file("training_labels.txt") into TRAINING_LABELS
-
-  """
-  scpred_preprocess_data.R\
-            --input-sce-object ${training_sce}\
-            --normalised-counts-slot ${params.normalised_counts_slot}\
-            --output-matrix-object training_matrix.rds\
-            --output-labels training_labels.txt 
-  """
-}
-
-process eigen_decompose{
-  conda "${baseDir}/envs/scpred.yaml"
-
-  memory { 32.GB * task.attempt }
-  maxRetries 5
-  errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
-
-  input:
-    file(training_matrix) from TRAINING_MATRIX
-    file(training_labels) from TRAINING_LABELS
-
-  output:
-    file("scpred_training_object.rds") into TRAINING_OBJECT
-
-  """
-  scpred_eigen_decomp.R\
-            --training-matrix ${training_matrix}\
-            --log-transform ${params.log_transform}\
-            --training-labels ${training_labels}\
-            --output-path scpred_training_object.rds 
+  seurat-read-10x.R\
+            --data-dir ${training_10X_data}\
+            --output-format 'seurat'\
+            --metadata ${training_metadata}\
+            --output-object-file training_seurat.rds\
   """
 }
 
@@ -119,7 +72,7 @@ process get_features{
   errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
   input:
-    file(scpred_training_object) from TRAINING_OBJECT
+    file(scpred_training_object) from TRAINING_SEURAT
 
   output:
     file("scpred_training_features.rds") into TRAINING_FEATURES
@@ -128,8 +81,7 @@ process get_features{
   scpred_get_feature_space.R\
           --input-object ${scpred_training_object}\
           --prediction-column ${params.cell_types_col_name}\
-          --output-path scpred_training_features.rds\
-          --eigenvalue-plot-path ${params.eigenvalue_plot_path}
+          --output-path scpred_training_features.rds
   """
 }
 
@@ -152,6 +104,9 @@ process train_model{
           --input-object ${scpred_training_features}\
           --train-id ${params.training_dataset_id}\
           --model ${params.model}\
+          --allow-parallel ${params.allow_parallel}\
+          --num-cores ${params.num_cores}\
+          --get-scpred ${params.get_scpred}\
           --output-path scpred_classifier.rds\
           --train-probs-plot ${params.train_probs_plot_path}
   """

@@ -1,0 +1,3 @@
+name: seurat-scripts
+dependencies:
+  - seurat-scripts=0.0.8
