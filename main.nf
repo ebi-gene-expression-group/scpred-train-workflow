@@ -80,7 +80,7 @@ process get_features{
   """
   scpred_get_feature_space.R\
           --input-object ${scpred_training_object}\
-          --prediction-column ${params.cell_types_col_name}\
+          --prediction-column "${params.cell_types_col_name}"\
           --output-path scpred_training_features.rds
   """
 }
