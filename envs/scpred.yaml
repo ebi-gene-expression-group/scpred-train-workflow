@@ -1,5 +1,5 @@
 name: scpred-cli
 dependencies:
   - scpred-cli=0.1.0
-  - bioconductor-singlecellexperiment=1.6.0
+  - r-scpred=v1.9.0
   
