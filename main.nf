@@ -64,6 +64,73 @@ process read_training_data{
   """
 }
 
+// run pre-processing of the data matrix 
+process find_var_features{
+    conda "${baseDir}/envs/seurat.yaml"
+    
+    memory { 32.GB * task.attempt }
+    maxRetries 5
+    errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
+
+    input: 
+        file(training_seurat_obj) from TRAINING_SEURAT
+    
+    output: 
+        file("seurat_var_features.rds") into SEURAT_VAR_FEATURES
+
+    """
+    seurat-find-variable-genes.R\
+            --input-object-file ${training_seurat_obj}\
+            --output-object-file seurat_var_features.rds\
+            --output-text-file seurat_feature_list.txt
+    """
+}
+
+process scale_data { 
+    conda "${baseDir}/envs/seurat.yaml"
+    
+    memory { 32.GB * task.attempt }
+    maxRetries 5
+    errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
+
+    input: 
+        file(seurat_var_features) from SEURAT_VAR_FEATURES
+
+    output: 
+        file("seurat_scaled_data.rds") into SEURAT_SCALED
+
+    """
+    seurat-scale-data.R\
+            --input-object-file ${seurat_var_features}\
+            --output-object-file seurat_scaled_data.rds\
+            --vars-to-regress ${params.vars_to_regress}
+    """
+}
+
+process run_pca{
+    conda "${baseDir}/envs/seurat.yaml"
+    
+    memory { 32.GB * task.attempt }
+    maxRetries 5
+    errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
+
+    input:
+        file(seurat_scaled_data) from SEURAT_SCALED 
+
+    output:
+        file("seurat_pca.rds") into SEURAT_PCA
+
+    """
+    seurat-run-pca.R\
+            --input-object-file ${seurat_scaled_data}\
+            --output-object-file seurat_pca.rds\
+            --output-embeddings-file embeddings.csv\
+            --output-loadings-file loadings.csv\
+            --output-stdev-file stdev_values.txt
+    """
+}
+
+// extract training features 
 process get_features{
   conda "${baseDir}/envs/scpred.yaml"
 
@@ -72,7 +139,7 @@ process get_features{
   errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
   input:
-    file(scpred_training_object) from TRAINING_SEURAT
+    file(scpred_training_object) from SEURAT_PCA
 
   output:
     file("scpred_training_features.rds") into TRAINING_FEATURES
