@@ -102,8 +102,7 @@ process scale_data {
     """
     seurat-scale-data.R\
             --input-object-file ${seurat_var_features}\
-            --output-object-file seurat_scaled_data.rds\
-            --vars-to-regress ${params.vars_to_regress}
+            --output-object-file seurat_scaled_data.rds
     """
 }
 
