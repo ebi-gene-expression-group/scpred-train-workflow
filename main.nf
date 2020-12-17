@@ -28,7 +28,7 @@ process downsample_cells {
         --exclusions ${params.exclusions}\
         --cell-id-field "${params.cell_id_col_name}"\
         --cell-type-field "${params.cell_types_col_name}"\
-        --cell-count-threshold "${params.cell_count_threshold}\
+        --cell-count-threshold "${params.cell_count_threshold}"\
         --output-dir expr_data_downsampled\
         --metadata-upd metadata_filtered.tsv
 
