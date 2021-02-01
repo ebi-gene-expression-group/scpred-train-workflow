@@ -175,7 +175,8 @@ process train_model{
           --num-cores ${params.num_cores}\
           --get-scpred ${params.get_scpred}\
           --output-path scpred_classifier.rds\
-          --train-probs-plot ${params.train_probs_plot_path}
+          --train-probs-plot ${params.train_probs_plot_path}\
+          --iter-num ${params.iter_num}
   """
 }
 
