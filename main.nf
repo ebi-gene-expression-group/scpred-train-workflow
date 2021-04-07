@@ -69,6 +69,10 @@ process read_training_data{
 process normalise_data { 
   conda "${baseDir}/envs/seurat.yaml"
 
+  memory { 32.GB * task.attempt }
+  maxRetries 5
+  errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
+
   input:
     file(training_seurat_obj) from TRAINING_SEURAT
 
