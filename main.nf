@@ -61,7 +61,27 @@ process read_training_data{
             --data-dir ${training_10X_data}\
             --output-format 'seurat'\
             --metadata ${training_metadata}\
-            --output-object-file training_seurat.rds\
+            --output-object-file training_seurat.rds
+  """
+}
+
+// normalise training data 
+process normalise_data { 
+  conda "${baseDir}/envs/seurat.yaml"
+
+  input:
+    file(training_seurat_obj) from TRAINING_SEURAT
+
+  output:
+    file("training_seurat_normalised.rds") into TRAINING_SEURAT_NORMALISED
+
+
+  """
+  seurat-normalise-data.R\
+          --input-object-file ${training_seurat_obj}\
+          --normalization-method ${params.norm_method}\
+          --scale-factor ${params.scale_factor}\
+          --output-object-file training_seurat_normalised.rds
   """
 }
 
@@ -74,7 +94,7 @@ process find_var_features{
     errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
     input: 
-        file(training_seurat_obj) from TRAINING_SEURAT
+        file(training_seurat_obj) from TRAINING_SEURAT_NORMALISED
     
     output: 
         file("seurat_var_features.rds") into SEURAT_VAR_FEATURES
