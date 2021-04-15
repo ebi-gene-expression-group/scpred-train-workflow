@@ -147,6 +147,7 @@ process run_pca{
     """
     seurat-run-pca.R\
             --input-object-file ${seurat_scaled_data}\
+            --weight-by-var ${params.weight_by_var}\
             --output-object-file seurat_pca.rds\
             --output-embeddings-file embeddings.csv\
             --output-loadings-file loadings.csv\
